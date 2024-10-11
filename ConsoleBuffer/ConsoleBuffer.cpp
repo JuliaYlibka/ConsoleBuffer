@@ -99,23 +99,73 @@ int SetNewSizeOfBuffer() {
     }
     return 0;
 }
+int ReadAndWriteConsole() {
+    HANDLE hStdOut, hStdIn; // дескрипторы консоли
+    DWORD dwWritten, dwRead; // для количества символов
+    char buffer[80]; // для ввода символов
+    char str[] = "Input any string:";
+
+    char c;
+    // читаем дескрипторы консоли
+    hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    hStdIn = GetStdHandle(STD_INPUT_HANDLE);
+    if (hStdOut == INVALID_HANDLE_VALUE || hStdIn == INVALID_HANDLE_VALUE) {
+        cout << "Get standard handle failed." << endl;
+        return GetLastError();
+    }
+    // выводим сообщения о вводе строки
+    if (!WriteConsole(hStdOut, &str, sizeof(str), &dwWritten, NULL)) {
+        cout << "Write console failed." << endl;
+        return GetLastError();
+    }
+    if (!ReadConsole(hStdIn, &buffer, sizeof(buffer), &dwRead, NULL)) {
+        cout << "Read console failed." << endl;
+        return GetLastError();
+    }
+    // ждем команду на завершение работы
+    cout << "Input any char to exit: ";
+    cin >> c;
+    return 0;
+}
 
 int main() {
-    // Вызываем функции и проверяем на наличие ошибок
-    if (createActiveConsole() != 0) {
-        cout << "Error occurred in createActiveConsole." << endl;
-        return 1;
-    }
+    bool exit= false;
+    int choose;
+    while (!exit) {
+        cout << "Choose function!\n ";
+        cout << "1: createActiveConsole \n 2: OutputFromBufferConsole \n 3: SetNewSizeOfBuffer \n 4: ReadAndWriteConsole\n 5:exit\n";
+        cin >> choose;
+        switch (choose) {
+        case 1:
+            if (createActiveConsole() != 0) {
+                cout << "Error occurred in createActiveConsole." << endl;
+                return 1;
+            }
+            break;
+        case 2:
+            if (OutputFromBufferConsole() != 0) {
+                cout << "Error occurred in OutputFromBufferConsole." << endl;
+                return 1;
+            }
+            break;
+        case 3:
+            if (SetNewSizeOfBuffer() != 0) {
+                cout << "Error occurred in SetNewSizeOfBuffer." << endl;
+                return 1;
+            }
+            break;
+        case 4:
+            if (ReadAndWriteConsole() != 0) {
+                cout << "Error occurred in ReadAndWriteConsole." << endl;
+                return 1;
+            }
+            break;
+        case 5:
+            exit = true;
+        }
 
-    if (OutputFromBufferConsole() != 0) {
-        cout << "Error occurred in OutputFromBufferConsole." << endl;
-        return 1;
-    }
 
-    if (SetNewSizeOfBuffer() != 0) {
-        cout << "Error occurred in SetNewSizeOfBuffer." << endl;
-        return 1;
+        
     }
-
     return 0;
 }
